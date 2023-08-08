@@ -1,6 +1,6 @@
 import os
 import random
-from lexicon.words import WORDS_ES_RUS
+from lexicon.words import WORDS_ES_RUS, Day_1_task_2
 
 dict_esrus = WORDS_ES_RUS
 eswords: list = []
@@ -45,16 +45,28 @@ def get_random_word(correct_word, words):
 
 def get_random_word_ru(correct_word, words):
     words_dict: dict[str, str] = {}
-    words_dict[correct_word] = 'correct_ru'
+    words_dict[correct_word] = 'correct'
     print(correct_word)
     while True:
         number = random.randint(0, len(words) - 1)
         if correct_word != words[number]:
-            words_dict[words[number]] = 'incorrect_ru'
+            words_dict[words[number]] = 'incorrect'
+            if len(words_dict) == 4:
+                break
+    sort_words = sorted(words_dict.items())
+    return dict(sort_words)
+
+def get_random_task_3(correct_word, words):
+    words_dict: dict[str, str] = {}
+    words_dict[correct_word] = 'right'
+    while True:
+        number = random.randint(0, len(words) - 1)
+        if correct_word != words[number]:
+            words_dict[words[number]] = 'wrong'
             if len(words_dict) == 4:
                 break
     sort_words = sorted(words_dict.items())
     return dict(sort_words)
 
 eswords, ruwords = get_es_rus_lists(WORDS_ES_RUS)
-WORDS_RU_ES = get_ru_es(ruwords, eswords)
+estask2, esansw2 = get_es_rus_lists(Day_1_task_2)

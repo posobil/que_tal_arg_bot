@@ -5,10 +5,10 @@ from aiogram.filters import Command, CommandStart, Text
 from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
 from keyboards.pagination_kb import create_menu_button, create_course_buttons,\
     create_weeks_buttons, create_days_buttons, create_task_buttons, create_answer_buttons, create_back_button, \
-    create_ru_answer_buttons
+    create_ru_answer_buttons, create_task3_answer_buttons
 from lexicon.lexicon import LEXICON, LEXICON_MAIN_BUTTON
 from lexicon.words import WORDS_ES_RUS
-from services.file_handling import listdict_es_rus, eswords, ruwords
+from services.file_handling import listdict_es_rus, eswords, ruwords, estask2, esansw2
 from database.database import user_dict_template, users_db
 
 router: Router = Router()
@@ -68,6 +68,7 @@ async def process_forward_press(callback: CallbackQuery):
 async def start_translate_es_ru(callback: CallbackQuery):
     users_db[callback.from_user.id]['page'] = 'day_1'
     page = users_db[callback.from_user.id]['page']
+    users_db[callback.from_user.id]['task_lang'] = 'es'
     users_db[callback.from_user.id]['correct'] = 0
     users_db[callback.from_user.id]['word'] = 0
     word = eswords[users_db[callback.from_user.id]['word']]
@@ -75,95 +76,138 @@ async def start_translate_es_ru(callback: CallbackQuery):
         text=f'{users_db[callback.from_user.id]["word"] + 1}/{len(eswords)}\n'
              f'{LEXICON["/trans"]}{word}', reply_markup=create_answer_buttons(callback, ruwords))
 
-
-@router.callback_query(Text(text='correct'))
-async def translate_es_ru(callback: CallbackQuery):
-    users_db[callback.from_user.id]['page'] = 'day_1'
-    page = users_db[callback.from_user.id]['page']
-    if users_db[callback.from_user.id]['word'] + 1 < len(eswords):
-        users_db[callback.from_user.id]['word'] += 1
-        users_db[callback.from_user.id]['correct'] += 1
-        word = eswords[users_db[callback.from_user.id]['word']]
-        await callback.message.edit_text(
-            text=f'{users_db[callback.from_user.id]["word"] + 1}/{len(eswords)}\n'
-                 f'{LEXICON["/trans_sh"]}{word}', reply_markup=create_answer_buttons(callback, ruwords))
-        await callback.answer(text='✅ Верно')
-    else:
-        users_db[callback.from_user.id]['word'] += 1
-        users_db[callback.from_user.id]['correct'] += 1
-        await callback.message.edit_text(
-            text=f'{LEXICON["finish"]}{users_db[callback.from_user.id]["correct"] } из {len(ruwords)}\n',
-            reply_markup=create_back_button(page))
-        await callback.answer(text='✅ Верно')
-
-@router.callback_query(Text(text='incorrect'))
-async def translate_es_ru_inc(callback: CallbackQuery):
-    users_db[callback.from_user.id]['page'] = 'day_1'
-    page = users_db[callback.from_user.id]['page']
-    if users_db[callback.from_user.id]['word'] + 1 < len(eswords):
-        users_db[callback.from_user.id]['word'] += 1
-        word = eswords[users_db[callback.from_user.id]['word']]
-        await callback.message.edit_text(
-            text=f'{users_db[callback.from_user.id]["word"] + 1}/{len(eswords)}\n'
-                 f'{LEXICON["/trans_sh"]}{word}', reply_markup=create_answer_buttons(callback, ruwords))
-        await callback.answer(text='❌ Не верно')
-    else:
-        users_db[callback.from_user.id]['word'] += 1
-        await callback.message.edit_text(
-            text=f'{LEXICON["finish"]}{users_db[callback.from_user.id]["correct"] } из {len(ruwords)}\n',
-        reply_markup=create_back_button(page))
-        await callback.answer(text='❌ Не верно')
-
 @router.callback_query(Text(text='rus1'))
 async def start_translate_ru_es(callback: CallbackQuery):
     users_db[callback.from_user.id]['page'] = 'day_1'
     users_db[callback.from_user.id]['correct'] = 0
     page = users_db[callback.from_user.id]['page']
+    users_db[callback.from_user.id]['task_lang'] = 'ru'
     users_db[callback.from_user.id]['word'] = 0
     word = ruwords[users_db[callback.from_user.id]['word']]
     await callback.message.edit_text(
         text=f'{users_db[callback.from_user.id]["word"] + 1}/{len(ruwords)}\n'
              f'{LEXICON["/trans"]}{word}', reply_markup=create_answer_buttons(callback, eswords))
 
-@router.callback_query(Text(text='correct_ru'))
-async def translate_ru_es(callback: CallbackQuery):
+
+@router.callback_query(Text(text='correct'))
+async def translate_es_ru(callback: CallbackQuery):
     users_db[callback.from_user.id]['page'] = 'day_1'
     page = users_db[callback.from_user.id]['page']
-    if users_db[callback.from_user.id]['word'] + 1 < len(ruwords):
-        users_db[callback.from_user.id]['word'] += 1
-        users_db[callback.from_user.id]['correct'] += 1
-        word = ruwords[users_db[callback.from_user.id]['word']]
-        await callback.message.edit_text(
-            text=f'{users_db[callback.from_user.id]["word"] + 1}/{len(ruwords)}\n'
-                 f'{LEXICON["/trans_sh"]}{word}', reply_markup=create_ru_answer_buttons(callback, eswords))
-        await callback.answer(text='✅ Верно')
+    if users_db[callback.from_user.id]['task_lang'] == 'es':
+        if users_db[callback.from_user.id]['word'] + 1 < len(eswords):
+            users_db[callback.from_user.id]['word'] += 1
+            users_db[callback.from_user.id]['correct'] += 1
+            word = eswords[users_db[callback.from_user.id]['word']]
+            await callback.message.edit_text(
+                text=f'{users_db[callback.from_user.id]["word"] + 1}/{len(eswords)}\n'
+                     f'{word}\n{LEXICON["/trans_sh"]}{word}', reply_markup=create_answer_buttons(callback, ruwords))
+            await callback.answer(text='✅ Верно')
+        else:
+            users_db[callback.from_user.id]['word'] += 1
+            users_db[callback.from_user.id]['correct'] += 1
+            await callback.message.edit_text(
+                text=f'{LEXICON["finish"]}{users_db[callback.from_user.id]["correct"] } из {len(ruwords)}\n',
+                reply_markup=create_back_button(page))
+            await callback.answer(text='✅ Верно')
     else:
-        users_db[callback.from_user.id]['word'] += 1
-        users_db[callback.from_user.id]['correct'] += 1
-        await callback.message.edit_text(
-            text=f'{LEXICON["finish"]}{users_db[callback.from_user.id]["correct"] } из {len(eswords)}\n',
+        if users_db[callback.from_user.id]['word'] + 1 < len(ruwords):
+            users_db[callback.from_user.id]['word'] += 1
+            users_db[callback.from_user.id]['correct'] += 1
+            word = ruwords[users_db[callback.from_user.id]['word']]
+            await callback.message.edit_text(
+                text=f'{users_db[callback.from_user.id]["word"] + 1}/{len(ruwords)}\n'
+                     f'{word}\n{LEXICON["/trans_sh"]}', reply_markup=create_ru_answer_buttons(callback, eswords))
+            await callback.answer(text='✅ Верно')
+        else:
+            users_db[callback.from_user.id]['word'] += 1
+            users_db[callback.from_user.id]['correct'] += 1
+            await callback.message.edit_text(
+                text=f'{LEXICON["finish"]}{users_db[callback.from_user.id]["correct"]} из {len(eswords)}\n',
+                reply_markup=create_back_button(page))
+            await callback.answer(text='✅ Верно')
+
+@router.callback_query(Text(text='incorrect'))
+async def translate_es_ru_inc(callback: CallbackQuery):
+    users_db[callback.from_user.id]['page'] = 'day_1'
+    page = users_db[callback.from_user.id]['page']
+    if users_db[callback.from_user.id]['task_lang'] == 'es':
+        if users_db[callback.from_user.id]['word'] + 1 < len(eswords):
+            users_db[callback.from_user.id]['word'] += 1
+            word = eswords[users_db[callback.from_user.id]['word']]
+            await callback.message.edit_text(
+                text=f'{users_db[callback.from_user.id]["word"] + 1}/{len(eswords)}\n'
+                     f'{LEXICON["/trans_sh"]}{word}', reply_markup=create_answer_buttons(callback, ruwords))
+            await callback.answer(text='❌ Не верно')
+        else:
+            users_db[callback.from_user.id]['word'] += 1
+            await callback.message.edit_text(
+                text=f'{LEXICON["finish"]}{users_db[callback.from_user.id]["correct"] } из {len(ruwords)}\n',
             reply_markup=create_back_button(page))
-        await callback.answer(text='✅ Верно')
+            await callback.answer(text='❌ Не верно')
+    else:
+        if users_db[callback.from_user.id]['word'] + 1 < len(ruwords):
+            users_db[callback.from_user.id]['word'] += 1
+            word = ruwords[users_db[callback.from_user.id]['word']]
+            await callback.message.edit_text(
+                text=f'{users_db[callback.from_user.id]["word"] + 1}/{len(ruwords)}\n'
+                     f'{LEXICON["/trans_sh"]}{word}', reply_markup=create_ru_answer_buttons(callback, eswords))
+            await callback.answer(text='❌ Не верно')
+        else:
+            users_db[callback.from_user.id]['word'] += 1
+            await callback.message.edit_text(
+                text=f'{LEXICON["finish"]}{users_db[callback.from_user.id]["correct"]} из {len(eswords)}\n',
+                reply_markup=create_back_button(page))
+            await callback.answer(text='❌ Не верно')
 
-
-@router.callback_query(Text(text='incorrect_ru'))
-async def translate_ru_es_inc(callback: CallbackQuery):
+@router.callback_query(Text(text='task_3'))
+async def start_choise_verb(callback: CallbackQuery):
     users_db[callback.from_user.id]['page'] = 'day_1'
     page = users_db[callback.from_user.id]['page']
-    if users_db[callback.from_user.id]['word'] + 1 < len(ruwords):
+    users_db[callback.from_user.id]['task_lang'] = 'es'
+    users_db[callback.from_user.id]['correct'] = 0
+    users_db[callback.from_user.id]['word'] = 0
+    word = estask2[users_db[callback.from_user.id]['word']]
+    await callback.message.edit_text(
+        text=f'{users_db[callback.from_user.id]["word"] + 1}/{len(estask2)}\n'
+             f'{LEXICON["/verb"]}{word}', reply_markup=create_task3_answer_buttons(callback, esansw2))
+
+@router.callback_query(Text(text='right'))
+async def choise_verb(callback: CallbackQuery):
+    users_db[callback.from_user.id]['page'] = 'day_1'
+    page = users_db[callback.from_user.id]['page']
+    if users_db[callback.from_user.id]['word'] + 1 < len(estask2):
         users_db[callback.from_user.id]['word'] += 1
-        word = ruwords[users_db[callback.from_user.id]['word']]
+        users_db[callback.from_user.id]['correct'] += 1
+        word = estask2[users_db[callback.from_user.id]['word']]
         await callback.message.edit_text(
-            text=f'{users_db[callback.from_user.id]["word"] + 1}/{len(ruwords)}\n'
-                 f'{LEXICON["/trans_sh"]}{word}', reply_markup=create_ru_answer_buttons(callback, eswords))
+            text=f'{users_db[callback.from_user.id]["word"] + 1}/{len(estask2)}\n'
+                     f'{LEXICON["/verb_sh"]}{word}', reply_markup=create_task3_answer_buttons(callback, esansw2))
+        await callback.answer(text='✅ Верно')
+    else:
+        users_db[callback.from_user.id]['word'] += 1
+        users_db[callback.from_user.id]['correct'] += 1
+        await callback.message.edit_text(
+                text=f'{LEXICON["finish"]}{users_db[callback.from_user.id]["correct"] } из {len(esansw2)}\n',
+                reply_markup=create_back_button(page))
+        await callback.answer(text='✅ Верно')
+
+@router.callback_query(Text(text='wrong'))
+async def choise_verb_w(callback: CallbackQuery):
+    users_db[callback.from_user.id]['page'] = 'day_1'
+    page = users_db[callback.from_user.id]['page']
+    if users_db[callback.from_user.id]['word'] + 1 < len(estask2):
+        users_db[callback.from_user.id]['word'] += 1
+        word = estask2[users_db[callback.from_user.id]['word']]
+        await callback.message.edit_text(
+                text=f'{users_db[callback.from_user.id]["word"] + 1}/{len(estask2)}\n'
+                     f'{LEXICON["/verb_sh"]}{word}', reply_markup=create_task3_answer_buttons(callback, esansw2))
         await callback.answer(text='❌ Не верно')
     else:
         users_db[callback.from_user.id]['word'] += 1
         await callback.message.edit_text(
-            text=f'{LEXICON["finish"]}{users_db[callback.from_user.id]["correct"] } из {len(eswords)}\n',
-        reply_markup=create_back_button(page))
+            text=f'{LEXICON["finish"]}{users_db[callback.from_user.id]["correct"] } из {len(esansw2)}\n',
+            reply_markup=create_back_button(page))
         await callback.answer(text='❌ Не верно')
-
 
 
 
