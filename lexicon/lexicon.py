@@ -31,11 +31,3 @@ LEXICON: dict[str, str] = {
     'choise_days': 'Выбери день обучения: ',
     'choise_type_task': 'Выбери задание: '
 }
-
-LEXICON_MAIN_BUTTON: dict[str, str] = {
-    '/menu': 'Показываю меню',
-    '/beginning': 'В начало книги',
-    '/continue': 'Продолжить чтение',
-    '/bookmarks': 'Мои закладки',
-    '/help': 'Справка по работе бота'
-}

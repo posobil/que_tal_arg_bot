@@ -19,20 +19,20 @@ def create_menu_button() -> ReplyKeyboardBuilder:
 def create_course_buttons() -> InlineKeyboardMarkup:
     # создаю клавиатуру с выбором курсов
     course_builder: InlineKeyboardBuilder = InlineKeyboardBuilder()
-    course_builder.row(*[InlineKeyboardButton(text=f'Курс A{i}', callback_data=f'course_a{i}') for i in range(1,2)], width=1)
+    course_builder.row(*[InlineKeyboardButton(text=f'Курс A{i}', callback_data=f'course_a{i}') for i in range(1,3)], width=1)
     return course_builder.as_markup(resize_keyboard=True)
 
 def create_weeks_buttons(page) -> InlineKeyboardMarkup:
     # создаю клавиатуру с выбором курсов
     weeks_builder: InlineKeyboardBuilder = InlineKeyboardBuilder()
-    weeks_builder.row(*[InlineKeyboardButton(text=f'Неделя {i}', callback_data=f'week_{i}') for i in range(1,2)], width=1)
+    weeks_builder.row(*[InlineKeyboardButton(text=f'Неделя {i}', callback_data=f'week_{i}') for i in range(1,5)], width=1)
     return weeks_builder.as_markup(resize_keyboard=True)
 
 def create_days_buttons(page) -> InlineKeyboardMarkup:
     # создаю клавиатуру с выбором курсов
     days_builder: InlineKeyboardBuilder = InlineKeyboardBuilder()
     back_button: InlineKeyboardButton = InlineKeyboardButton(text='Назад ⬅️', callback_data=f'{page}')
-    days_builder.row(*[InlineKeyboardButton(text=f'День {i}', callback_data=f'day_{i}') for i in range(1,2)], width=1)
+    days_builder.row(*[InlineKeyboardButton(text=f'Занятие {i}', callback_data=f'day_{i}') for i in range(1,6)], width=1)
     days_builder.row(back_button, width=1)
     return days_builder.as_markup(resize_keyboard=True)
 
@@ -70,14 +70,6 @@ def create_ru_answer_buttons(callback: CallbackQuery, eswords) -> InlineKeyboard
     l = get_random_word_ru(word, eswords)
     ru_builder.row(*[InlineKeyboardButton(text=f'{key}', callback_data=f'{value}') for key, value in l.items()], width=1)
     return ru_builder.as_markup(resize_keyboard=True)
-
-def create_task3_answer_buttons(callback: CallbackQuery, esansw2) -> InlineKeyboardMarkup:
-    # создаю клавиатуру с выбором ответа
-    word = esansw2[users_db[callback.from_user.id]['word']]
-    days_builder: InlineKeyboardBuilder = InlineKeyboardBuilder()
-    l = get_random_task_3(word, esansw2)
-    days_builder.row(*[InlineKeyboardButton(text=f'{key}', callback_data=f'{value}') for key, value in l.items()], width=1)
-    return days_builder.as_markup(resize_keyboard=True)
 
 def create_back_button(page) -> InlineKeyboardMarkup:
     # создаю кнопку назад

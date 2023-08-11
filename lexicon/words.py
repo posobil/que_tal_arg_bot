@@ -1,5 +1,5 @@
 WORDS_ES_RUS: dict[str, str] = {
-    'Libro': 'Книга',
+    'El libro': 'Книга',
     'Mio': 'Мой',
     'Casa': 'Дом',
     'Medico': 'Врач',
@@ -29,7 +29,7 @@ Day_1_task_2: dict[str, str] = {
     'Nosotras _ mujeres': 'somos',
     'El nino _ de Venezuela': 'es',
     'Vos y yo _ estudiantes': 'somos',
-    'Maria y yo vos _ lindas': 'son',
+    'Maria y vos _ lindas': 'son',
     'Los zapatos _ de cuero': 'son',
     'Mi padre y mi madre _ de Canada': 'son',
     'Mi nuestra escuela _ moderna': 'es'
