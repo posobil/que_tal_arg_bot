@@ -1,16 +1,30 @@
 import os
 import random
 from lexicon.words import WORDS_ES_RUS, Day_1_task_2
+import gspread
 
 dict_esrus = WORDS_ES_RUS
 eswords: list = []
 ruwords: list = []
+table_link = 'https://docs.google.com/spreadsheets/d/14M-0SLkZCyyLreBE2-Ia7v4olg5LVsqWXl-F_pPtRAk/edit#gid=0'
+page_name = 'day1_1'
+
+# Метод принимает ссылку на гугл таблицу и название страницы
+# возвращает 2 списка из первого и второго столбцов выбранной страницы
+def get_words_lists_gtable(table_link, page_name):
+    gc = gspread.service_account(filename='qta.json')
+    sh = gc.open_by_url(table_link)
+    worksheet = sh.worksheet(page_name)
+    es_w = worksheet.col_values(1)
+    ru_w = worksheet.col_values(2)
+    return es_w, ru_w
+
 
 # Преобразую в строку для вывода всего набора слов
-def listdict_es_rus(dict):
+def listdict_es_rus(es_list, ru_list):
     ll = ''
-    for key, value in dict.items():
-        ll = ll + (f'{key} - {value}\n')
+    for i in range(len(es_list)):
+        ll = ll + (f'{es_list[i]} - {ru_list[i]}\n')
     return ll
 
 # функция принимае массив и возвращает 2 списка слов

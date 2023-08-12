@@ -7,7 +7,7 @@ from keyboards.pagination_kb import create_menu_button, create_course_buttons,\
     create_weeks_buttons, create_days_buttons, create_task_buttons, create_answer_buttons, create_back_button
 from lexicon.lexicon import LEXICON
 from lexicon.words import WORDS_ES_RUS
-from services.file_handling import listdict_es_rus, eswords, ruwords, estask2, esansw2
+from services.file_handling import listdict_es_rus, eswords, ruwords, estask2, esansw2, table_link, page_name, get_words_lists_gtable
 from database.database import user_dict_template, users_db
 
 router: Router = Router()
@@ -58,16 +58,18 @@ async def process_forward_press(callback: CallbackQuery):
 @router.callback_query(Text(text='dict1'))
 async def process_forward_press(callback: CallbackQuery):
     users_db[callback.from_user.id]['page'] = 'day_1'
+    es, ru = get_words_lists_gtable(table_link, page_name)
     page = users_db[callback.from_user.id]['page']
     await callback.message.edit_text(
-            text=listdict_es_rus(WORDS_ES_RUS),
+            text=listdict_es_rus(es, ru),
             reply_markup=create_back_button(page))
 
 @router.callback_query(Text(text='esp1'))
 async def start_translate_es_ru(callback: CallbackQuery):
     users_db[callback.from_user.id]['page'] = 'day_1'
-    users_db[callback.from_user.id]['list_1'] = eswords
-    users_db[callback.from_user.id]['list_2'] = ruwords
+    es, ru = get_words_lists_gtable(table_link, page_name)
+    users_db[callback.from_user.id]['list_1'] = es
+    users_db[callback.from_user.id]['list_2'] = ru
     list_1 = users_db[callback.from_user.id]['list_1']
     list_2 = users_db[callback.from_user.id]['list_2']
     users_db[callback.from_user.id]['correct'] = 0
@@ -80,8 +82,9 @@ async def start_translate_es_ru(callback: CallbackQuery):
 @router.callback_query(Text(text='rus1'))
 async def start_translate_ru_es(callback: CallbackQuery):
     users_db[callback.from_user.id]['page'] = 'day_1'
-    users_db[callback.from_user.id]['list_1'] = ruwords
-    users_db[callback.from_user.id]['list_2'] = eswords
+    es, ru = get_words_lists_gtable(table_link, page_name)
+    users_db[callback.from_user.id]['list_1'] = ru
+    users_db[callback.from_user.id]['list_2'] = es
     list_1 = users_db[callback.from_user.id]['list_1']
     list_2 = users_db[callback.from_user.id]['list_2']
     users_db[callback.from_user.id]['correct'] = 0
